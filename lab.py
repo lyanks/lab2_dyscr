@@ -164,7 +164,6 @@ def adjacency_matrix_radius(graph: list[list[int]]) -> int:
 
     def bfs(start: int) -> int:
         distances = {start: 0}
-        visited = {start}
         queue = [start]
         i = 0
 
