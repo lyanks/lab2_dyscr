@@ -175,6 +175,7 @@ def iterative_adjacency_matrix_dfs(graph: list[list[int]], start: int) -> list[i
     visited = set()
     stack = [start]
     result = []
+    n = len(graph)
 
     while stack:
         v = stack.pop()
@@ -182,12 +183,11 @@ def iterative_adjacency_matrix_dfs(graph: list[list[int]], start: int) -> list[i
             visited.add(v)
             result.append(v)
 
-            # додаємо сусідів у стек у прямому порядку
-            for u in graph[v]:
-                if u not in visited:
+            for u in range(n):
+                if graph[v][u] == 1 and u not in visited:
                     stack.append(u)
 
-    return result
+    return sorted(result)
 
 
 def iterative_adjacency_dict_bfs(graph: dict[int, list[int]], start: int) -> list[int]:
@@ -200,8 +200,8 @@ def iterative_adjacency_dict_bfs(graph: dict[int, list[int]], start: int) -> lis
     >>> iterative_adjacency_dict_bfs({0: [1, 2], 1: [0, 2, 3], 2: [0, 1], 3: []}, 0)
     [0, 1, 2, 3]
     """
-    visited = set([start])
-    queue = [start]  # звичайний список, працює як черга
+    visited = {start}
+    queue = [start]
     result = []
 
     while queue:
