@@ -3,6 +3,7 @@ Lab 2 template
 """
 
 
+# ======================= 1 =======================
 def read_incidence_matrix(filename: str) -> list[list[int]]:
     """
     :param str filename: path to file
@@ -72,6 +73,7 @@ def read_adjacency_dict(filename: str) -> dict[int, list[int]]:
     return matrix
 
 
+# ======================= 2 =======================
 def recursive_adjacency_dict_dfs(graph: dict[int, list[int]], start: int) -> list[int]:
     """
     :param dict[int, list[int]] graph: the adjacency list of a given graph
@@ -132,6 +134,7 @@ def recursive_adjacency_matrix_dfs(graph: list[list[int]], start: int) -> list[i
     return visited
 
 
+# ======================= 3 =======================
 def iterative_adjacency_dict_dfs(graph: dict[int, list[int]], start: int) -> list[int]:
     """
     :param dict[int, list[int]] graph: the adjacency list of a given graph
@@ -156,7 +159,7 @@ def iterative_adjacency_dict_dfs(graph: dict[int, list[int]], start: int) -> lis
                 if u not in visited:
                     stack.append(u)
 
-    return result
+    return sorted(result)
 
 
 def iterative_adjacency_matrix_dfs(graph: list[list[int]], start: int) -> list[int]:
@@ -198,18 +201,19 @@ def iterative_adjacency_dict_bfs(graph: dict[int, list[int]], start: int) -> lis
     [0, 1, 2, 3]
     """
     visited = set([start])
-    queue = [start]     # звичайний список, працює як черга
+    queue = [start]  # звичайний список, працює як черга
     result = []
 
     while queue:
-        v = queue.pop(0)    # беремо перший елемент
+        v = queue.pop(0)  # беремо перший елемент
         result.append(v)
         for u in graph[v]:
             if u not in visited:
                 visited.add(u)
-                queue.append(u)   # додаємо в кінець
+                queue.append(u)  # додаємо в кінець
 
     return result
+
 
 def iterative_adjacency_matrix_bfs(graph: list[list[int]], start: int) -> list[int]:
     """
@@ -238,6 +242,7 @@ def iterative_adjacency_matrix_bfs(graph: list[list[int]], start: int) -> list[i
     return result
 
 
+# ======================= 4 =======================
 def adjacency_matrix_radius(graph: list[list[int]]) -> int:
     """
     :param list[list[int]] graph: the adjacency matrix of a given graph
@@ -310,6 +315,8 @@ def adjacency_dict_radius(graph: dict[int, list[int]]) -> int:
 
     return min(bfs(v) for v in graph)
 
+
+# ======================= 5,6 =======================
 
 if __name__ == "__main__":
     import doctest
