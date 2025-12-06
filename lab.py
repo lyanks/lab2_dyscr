@@ -72,32 +72,6 @@ def read_adjacency_dict(filename: str) -> dict[int, list[int]]:
     return matrix
 
 
-def iterative_adjacency_dict_dfs(graph: dict[int, list[int]], start: int) -> list[int]:
-    """
-    :param dict[int, list[int]] graph: the adjacency list of a given graph
-    :param int start: start vertex of search
-    :returns list[int]: the dfs traversal of the graph
-    >>> iterative_adjacency_dict_dfs({0: [1, 2], 1: [0, 2], 2: [0, 1]}, 0)
-    [0, 1, 2]
-    >>> iterative_adjacency_dict_dfs({0: [1, 2], 1: [0, 2, 3], 2: [0, 1], 3: []}, 0)
-    [0, 1, 2, 3]
-    """
-    pass
-
-
-def iterative_adjacency_matrix_dfs(graph: list[list[int]], start: int) -> list[int]:
-    """
-    :param list[list[int]] graph: the adjacency matrix of a given graph
-    :param int start: start vertex of search
-    :returns list[int]: the dfs traversal of the graph
-    >>> iterative_adjacency_matrix_dfs([[0, 1, 1], [1, 0, 1], [1, 1, 0]], 0)
-    [0, 1, 2]
-    >>> iterative_adjacency_matrix_dfs([[0, 1, 1, 0], [1, 0, 1, 1], [1, 1, 0, 0], [0, 0, 0, 0]], 0)
-    [0, 1, 2, 3]
-    """
-    pass
-
-
 def recursive_adjacency_dict_dfs(graph: dict[int, list[int]], start: int) -> list[int]:
     """
     :param dict[int, list[int]] graph: the adjacency list of a given graph
@@ -158,6 +132,61 @@ def recursive_adjacency_matrix_dfs(graph: list[list[int]], start: int) -> list[i
     return visited
 
 
+def iterative_adjacency_dict_dfs(graph: dict[int, list[int]], start: int) -> list[int]:
+    """
+    :param dict[int, list[int]] graph: the adjacency list of a given graph
+    :param int start: start vertex of search
+    :returns list[int]: the dfs traversal of the graph
+    >>> iterative_adjacency_dict_dfs({0: [1, 2], 1: [0, 2], 2: [0, 1]}, 0)
+    [0, 1, 2]
+    >>> iterative_adjacency_dict_dfs({0: [1, 2], 1: [0, 2, 3], 2: [0, 1], 3: []}, 0)
+    [0, 1, 2, 3]
+    """
+    visited = set()
+    stack = [start]
+    result = []
+
+    while stack:
+        v = stack.pop()
+        if v not in visited:
+            visited.add(v)
+            result.append(v)
+
+            for u in graph[v]:
+                if u not in visited:
+                    stack.append(u)
+
+    return result
+
+
+def iterative_adjacency_matrix_dfs(graph: list[list[int]], start: int) -> list[int]:
+    """
+    :param list[list[int]] graph: the adjacency matrix of a given graph
+    :param int start: start vertex of search
+    :returns list[int]: the dfs traversal of the graph
+    >>> iterative_adjacency_matrix_dfs([[0, 1, 1], [1, 0, 1], [1, 1, 0]], 0)
+    [0, 1, 2]
+    >>> iterative_adjacency_matrix_dfs([[0, 1, 1, 0], [1, 0, 1, 1], [1, 1, 0, 0], [0, 0, 0, 0]], 0)
+    [0, 1, 2, 3]
+    """
+    visited = set()
+    stack = [start]
+    result = []
+
+    while stack:
+        v = stack.pop()
+        if v not in visited:
+            visited.add(v)
+            result.append(v)
+
+            # додаємо сусідів у стек у прямому порядку
+            for u in graph[v]:
+                if u not in visited:
+                    stack.append(u)
+
+    return result
+
+
 def iterative_adjacency_dict_bfs(graph: dict[int, list[int]], start: int) -> list[int]:
     """
     :param dict[int, list[int]] graph: the adjacency list of a given graph
@@ -168,7 +197,19 @@ def iterative_adjacency_dict_bfs(graph: dict[int, list[int]], start: int) -> lis
     >>> iterative_adjacency_dict_bfs({0: [1, 2], 1: [0, 2, 3], 2: [0, 1], 3: []}, 0)
     [0, 1, 2, 3]
     """
+    visited = set([start])
+    queue = [start]     # звичайний список, працює як черга
+    result = []
 
+    while queue:
+        v = queue.pop(0)    # беремо перший елемент
+        result.append(v)
+        for u in graph[v]:
+            if u not in visited:
+                visited.add(u)
+                queue.append(u)   # додаємо в кінець
+
+    return result
 
 def iterative_adjacency_matrix_bfs(graph: list[list[int]], start: int) -> list[int]:
     """
@@ -180,7 +221,21 @@ def iterative_adjacency_matrix_bfs(graph: list[list[int]], start: int) -> list[i
     >>> iterative_adjacency_matrix_bfs([[0, 1, 1, 0], [1, 0, 1, 1], [1, 1, 0, 0], [0, 0, 0, 0]], 0)
     [0, 1, 2, 3]
     """
-    pass
+    visited = {start}
+    queue = [start]
+    result = []
+    n = len(graph)
+
+    while queue:
+        v = queue.pop(0)
+        result.append(v)
+
+        for u in range(n):
+            if graph[v][u] == 1 and u not in visited:
+                visited.add(u)
+                queue.append(u)
+
+    return result
 
 
 def adjacency_matrix_radius(graph: list[list[int]]) -> int:
