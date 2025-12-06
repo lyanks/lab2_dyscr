@@ -52,7 +52,6 @@ def iterative_adjacency_matrix_dfs(graph: list[list[int]], start: int) -> list[i
     """
     pass
 
-
 def recursive_adjacency_dict_dfs(graph: dict[int, list[int]], start: int) -> list[int]:
     """
     :param dict[int, list[int]] graph: the adjacency list of a given graph
@@ -63,7 +62,17 @@ def recursive_adjacency_dict_dfs(graph: dict[int, list[int]], start: int) -> lis
     >>> recursive_adjacency_dict_dfs({0: [1, 2], 1: [0, 2, 3], 2: [0, 1], 3: []}, 0)
     [0, 1, 2, 3]
     """
-    pass
+
+    visited = []
+
+    def dfs(current_node):
+        neighbors =  sorted(graph.get(current_node, []))
+        if current_node not in visited:
+            visited.append(current_node)
+            for n in neighbors:
+                dfs(n)
+    dfs(start)
+    return visited
 
 
 def recursive_adjacency_matrix_dfs(graph: list[list[int]], start: int) -> list[int]:
@@ -76,7 +85,31 @@ def recursive_adjacency_matrix_dfs(graph: list[list[int]], start: int) -> list[i
     >>> recursive_adjacency_matrix_dfs([[0, 1, 1, 0], [1, 0, 1, 1], [1, 1, 0, 0], [0, 0, 0, 0]], 0)
     [0, 1, 2, 3]
     """
-    pass
+    visited = []
+
+    def matrix_to_dict(graph: list[list[int]]) -> dict[int, list[int]]:
+        dict_1 = {}
+        for i in range(len(graph)):
+            neighbors = []
+            for j in range(len(graph[i])):
+                if graph[i][j] == 1:
+                    neighbors.append(j)
+            dict_1[i] = neighbors
+
+        return dict_1
+
+    graph = matrix_to_dict(graph)
+
+    def dfs(current_node):
+        neighbors =  sorted(graph.get(current_node, []))
+        if current_node not in visited:
+            visited.append(current_node)
+            for n in neighbors:
+                dfs(n)
+    dfs(start)
+    return visited
+
+
 
 
 def iterative_adjacency_dict_bfs(graph: dict[int, list[int]], start: int) -> list[int]:
@@ -89,7 +122,6 @@ def iterative_adjacency_dict_bfs(graph: dict[int, list[int]], start: int) -> lis
     >>> iterative_adjacency_dict_bfs({0: [1, 2], 1: [0, 2, 3], 2: [0, 1], 3: []}, 0)
     [0, 1, 2, 3]
     """
-    pass
 
 
 def iterative_adjacency_matrix_bfs(graph: list[list[int]], start: int) -> list[int]:
@@ -115,8 +147,37 @@ def adjacency_matrix_radius(graph: list[list[int]]) -> int:
     >>> adjacency_matrix_radius([[0, 1, 1, 0], [1, 0, 1, 1], [1, 1, 0, 0], [0, 1, 0, 0]])
     1
     """
-    pass
+    def matrix_to_dict(graph: list[list[int]]) -> dict[int, list[int]]:
+        dict_1 = {}
+        for i in range(len(graph)):
+            neighbors = []
+            for j in range(len(graph[i])):
+                if graph[i][j] == 1:
+                    neighbors.append(j)
+            dict_1[i] = neighbors
+        return dict_1
 
+    graph = matrix_to_dict(graph)
+
+    if not graph:
+        return
+
+    def bfs(start: int) -> int:
+        distances = {start: 0}
+        visited = {start}
+        queue = [start]
+        i = 0
+
+        while i < len(queue):
+            current = queue[i]
+            i += 1
+
+            for neighbor in graph[current]:
+                if neighbor not in distances:
+                    distances[neighbor] = distances[current] + 1
+                    queue.append(neighbor)
+        return max(distances.values())
+    return min(bfs(v) for v in graph)
 
 def adjacency_dict_radius(graph: dict[int, list[int]]) -> int:
     """
@@ -127,7 +188,24 @@ def adjacency_dict_radius(graph: dict[int, list[int]]) -> int:
     >>> adjacency_dict_radius({0: [1, 2], 1: [0, 2, 3], 2: [0, 1], 3: [1]})
     1
     """
-    pass
+    if not graph:
+        return
+
+    def bfs(start: int) -> int:
+        distances = {start: 0}
+        queue = [start]
+        i = 0
+
+        while i < len(queue):
+            current = queue[i]
+            i += 1
+
+            for neighbor in graph[current]:
+                if neighbor not in distances:
+                    distances[neighbor] = distances[current] + 1
+                    queue.append(neighbor)
+        return max(distances.values())
+    return min(bfs(v) for v in graph)
 
 
 if __name__ == "__main__":
