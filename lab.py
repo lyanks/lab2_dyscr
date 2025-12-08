@@ -321,10 +321,10 @@ def adjacency_dict_radius(graph: dict[int, list[int]]) -> int:
 # ======================= 6 =======================
 def generate_random_graph(num_nodes: int, density: float = 0.25):
     """
-    Генерує випадковий граф та повертає його у двох представленнях:
-    матриця суміжності та словник суміжності.
-    :param num_nodes: Кількість вершин
-    :param density: Щільність графа (від 0.0 до 1.0). 0.25 - це розріджений граф.
+    Generates a random graph and returns it in two representations:
+    an adjacency matrix and an adjacency dictionary.
+    :param num_nodes: Number of vertices
+    :param density: Graph density (from 0.0 to 1.0)
     """
     matrix = [[0] * num_nodes for _ in range(num_nodes)]
     dictionary = {i: [] for i in range(num_nodes)}
@@ -342,7 +342,13 @@ def generate_random_graph(num_nodes: int, density: float = 0.25):
 
 def compare_algorithms(n_values: list[int]):
     """
-    Compare speed of DFS/BFS for Adjacency Matrix vs Adjacency Dict
+    Benchmarks DFS and BFS performance on Adjacency Matrices vs. Dictionaries.
+    Generates random graphs for each size in `n_values`, prints a timing table,
+    and plots the execution times using Matplotlib.
+    :param n_values: List of node counts to test (e.g., [100, 500, 1000]).
+    Returns:
+        tuple: Four lists containing execution times for Matrix DFS, Dict DFS,
+               Matrix BFS, and Dict BFS respectively.
     """
     matrix_dfs_times = []
     dict_dfs_times = []
