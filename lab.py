@@ -395,7 +395,92 @@ def find_cycles(get_neighbors, n: int) -> list[list[int]]:
 
     return [list(a) for a in cycles ]
 
+# ======================= 6 =======================
+def generate_random_graph(num_nodes: int, density: float = 0.25):
+    """
+    Generates a random graph and returns it in two representations:
+    an adjacency matrix and an adjacency dictionary.
+    :param num_nodes: Number of vertices
+    :param density: Graph density (from 0.0 to 1.0)
+    """
+    matrix = [[0] * num_nodes for _ in range(num_nodes)]
+    dictionary = {i: [] for i in range(num_nodes)}
+
+    for i in range(num_nodes):
+        for j in range(i + 1, num_nodes):
+            if random.random() < density:
+                matrix[i][j] = 1
+                matrix[j][i] = 1
+
+                dictionary[i].append(j)
+                dictionary[j].append(i)
+
+    return matrix, dictionary
+
+def compare_algorithms(n_values: list[int]):
+    """
+    Benchmarks DFS and BFS performance on Adjacency Matrices vs. Dictionaries.
+    Generates random graphs for each size in `n_values`, prints a timing table,
+    and plots the execution times using Matplotlib.
+    :param n_values: List of node counts to test (e.g., [100, 500, 1000]).
+    Returns:
+        tuple: Four lists containing execution times for Matrix DFS, Dict DFS,
+               Matrix BFS, and Dict BFS respectively.
+    """
+    matrix_dfs_times = []
+    dict_dfs_times = []
+    matrix_bfs_times = []
+    dict_bfs_times = []
+
+    print(f"{'N':<10} | {'Mat DFS':<10} | {'Dict DFS':<10} | {'Mat BFS':<10} | {'Dict BFS':<10}")
+    print("-" * 65)
+
+    for n in n_values:
+        matrix, dictionary = generate_random_graph(n, density=0.2)
+        start_node = 0
+
+        start_time = time.time()
+        iterative_adjacency_dict_dfs(dictionary, start_node)
+        dict_dfs_times.append(time.time() - start_time)
+
+        start_time = time.time()
+        iterative_adjacency_matrix_dfs(matrix, start_node)
+        matrix_dfs_times.append(time.time() - start_time)
+
+        start_time = time.time()
+        iterative_adjacency_dict_bfs(dictionary, start_node)
+        dict_bfs_times.append(time.time() - start_time)
+
+        start_time = time.time()
+        iterative_adjacency_matrix_bfs(matrix, start_node)
+        matrix_bfs_times.append(time.time() - start_time)
+
+        print(
+            f"{n:<10} | "
+            f"{matrix_dfs_times[-1]:.6f}   | "
+            f"{dict_dfs_times[-1]:.6f}   | "
+            f"{matrix_bfs_times[-1]:.6f}   | "
+            f"{dict_bfs_times[-1]:.6f}"
+        )
+
+    plt.figure(figsize=(10, 6))
+
+    plt.plot(n_values, matrix_dfs_times, label='Matrix DFS', marker='o')
+    plt.plot(n_values, dict_dfs_times, label='Dict DFS', marker='o')
+    plt.plot(n_values, matrix_bfs_times, label='Matrix BFS', marker='x', linestyle='--')
+    plt.plot(n_values, dict_bfs_times, label='Dict BFS', marker='x', linestyle='--')
+
+    plt.xlabel("Кількість вершин (n)")
+    plt.ylabel("Час виконання (с)")
+    plt.title("Порівняння ефективності: Матриця vs Словник")
+    plt.legend()
+    plt.grid(True)
+
+    plt.show()
+
+    return matrix_dfs_times, dict_dfs_times, matrix_bfs_times, dict_bfs_times
+
 if __name__ == "__main__":
     import doctest
-
     doctest.testmod()
+    compare_algorithms([10, 50, 100, 200, 300, 400, 500])
