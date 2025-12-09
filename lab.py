@@ -317,6 +317,83 @@ def adjacency_dict_radius(graph: dict[int, list[int]]) -> int:
 
 
 # ======================= 5,6 =======================
+def find_cycles_any(graph: list[list[int]] | dict[int, list[int]]) -> list[list[int]]:
+    """
+    Finds all cycles
+    >>> find_cycles_any(read_adjacency_dict('test2.dot'))
+    [[0, 1, 2], [1, 2, 3], [0, 1, 2, 3]
+    >>> find_cycles_any(read_incidence_matrix('test1.dot'))
+    [[0, 1, 2], [0, 3, 1, 2]]
+    >>> find_cycles_any(read_adjacency_matrix('input.dot'))
+    [[0, 1, 2]]
+    """
+    if isinstance(graph, dict): #adjacency_dict
+        n = max(graph.keys()) + 1
+
+        def get_neighbors(v):
+            return graph.get(v, [])
+
+        return find_cycles(get_neighbors, n)
+
+    if any(-1 in i for i in graph): #incidence_matrix
+        n = len(graph)
+        m = len(graph[0])
+
+        adj = {i: [] for i in range(n)}
+
+        for e in range(m):
+            a = b = None
+            for v in range(n):
+                if graph[v][e] == -1:
+                    a = v
+                elif graph[v][e] == 1:
+                    b = v
+            if a is not None and b is not None:
+                adj[a].append(b)
+
+        def get_neighbors(v):
+            return adj[v]
+
+        return find_cycles(get_neighbors, n)
+    else: #adjacency_matrix
+        n = len(graph)
+
+        def get_neighbors(v):
+            result = []
+            for u in range(n):
+                if graph[v][u] == 1:
+                    result.append(u)
+            return result
+
+        return find_cycles(get_neighbors, n)
+
+def find_cycles(get_neighbors, n: int) -> list[list[int]]:
+    cycles = []
+    stack = []
+    unique = []
+
+    def dfs(v):
+        stack.append(v)
+
+        for u in get_neighbors(v):
+            if u in stack:  # знайдено цикл
+                idx = stack.index(u)
+                cycle = stack[idx:].copy()
+                if len(cycle) >= 3:
+                    indx = cycle.index(min(cycle))
+                    default_cycle = cycle[indx:] + cycle[:indx]
+                    if set(default_cycle) not in unique:
+                        cycles.append(default_cycle)
+                        unique.append(set(default_cycle))
+            else:
+                dfs(u)  # не перевіряємо visited глобально
+
+        stack.pop()
+
+    for start in range(n):
+        dfs(start)
+
+    return [list(a) for a in cycles ]
 
 if __name__ == "__main__":
     import doctest
