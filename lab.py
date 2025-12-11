@@ -1,7 +1,7 @@
 """
 Lab 2 template
 """
-
+from copy import deepcopy
 
 # ======================= 1 =======================
 def read_incidence_matrix(filename: str) -> list[list[int]]:
@@ -140,26 +140,33 @@ def iterative_adjacency_dict_dfs(graph: dict[int, list[int]], start: int) -> lis
     :param dict[int, list[int]] graph: the adjacency list of a given graph
     :param int start: start vertex of search
     :returns list[int]: the dfs traversal of the graph
+    >>> iterative_adjacency_dict_dfs({1: [2, 3], 2: [1, 4], 3: [1], 4: [2]}, 1)
+    [1, 2, 4, 3]
     >>> iterative_adjacency_dict_dfs({0: [1, 2], 1: [0, 2], 2: [0, 1]}, 0)
     [0, 1, 2]
-    >>> iterative_adjacency_dict_dfs({0: [1, 2], 1: [0, 2, 3], 2: [0, 1], 3: []}, 0)
-    [0, 1, 2, 3]
+    >>> iterative_adjacency_dict_dfs({'A': ['B', 'C'], 'B': ['A', 'D'], 'C': ['A'], 'D': ['B']}, 'A')
+    ['A', 'B', 'D', 'C']
     """
+    dict_copy = {k:sorted(v) for k,v in graph.items()}
     visited = set()
     stack = [start]
     result = []
 
     while stack:
-        v = stack.pop()
+        v = stack[-1]
         if v not in visited:
             visited.add(v)
             result.append(v)
+        for u in dict_copy[v]:
+            if u in dict_copy and u not in visited:
+                stack.append(u)
+                if not dict_copy[v]:
+                    dict_copy.pop(v)
+                break
+        else:
+            stack.pop(-1)
 
-            for u in graph[v]:
-                if u not in visited:
-                    stack.append(u)
-
-    return sorted(result)
+    return result
 
 
 def iterative_adjacency_matrix_dfs(graph: list[list[int]], start: int) -> list[int]:
@@ -171,23 +178,30 @@ def iterative_adjacency_matrix_dfs(graph: list[list[int]], start: int) -> list[i
     [0, 1, 2]
     >>> iterative_adjacency_matrix_dfs([[0, 1, 1, 0], [1, 0, 1, 1], [1, 1, 0, 0], [0, 0, 0, 0]], 0)
     [0, 1, 2, 3]
+    >>> iterative_adjacency_matrix_dfs([[0, 1, 1, 0], [1, 0, 0, 1], [1, 0, 0, 0], [0, 2, 0, 0]], 0)
+    [0, 1, 3, 2]
     """
-    visited = set()
+    num_vertices = len(graph)
+    visited = [False] * num_vertices
     stack = [start]
     result = []
-    n = len(graph)
 
     while stack:
-        v = stack.pop()
-        if v not in visited:
-            visited.add(v)
+        v = stack[-1]
+        if not visited[v]:
+            visited[v] = True
             result.append(v)
+        nest_visited = False
+        for u in range(num_vertices):
+            if graph[v][u] == 1 and not visited[u]:
+                stack.append(u)
+                nest_visited = True
+                break
 
-            for u in range(n):
-                if graph[v][u] == 1 and u not in visited:
-                    stack.append(u)
+        if not nest_visited:
+            stack.pop()
 
-    return sorted(result)
+    return result
 
 
 def iterative_adjacency_dict_bfs(graph: dict[int, list[int]], start: int) -> list[int]:
@@ -195,6 +209,8 @@ def iterative_adjacency_dict_bfs(graph: dict[int, list[int]], start: int) -> lis
     :param dict[int, list[int]] graph: the adjacency list of a given graph
     :param int start: start vertex of search
     :returns list[int]: the bfs traversal of the graph
+    >>> iterative_adjacency_dict_bfs({0: [1, 3], 1: [0, 2], 2: [1], 3: [0]}, 0)
+    [0, 1, 3, 2]
     >>> iterative_adjacency_dict_bfs({0: [1, 2], 1: [0, 2], 2: [0, 1]}, 0)
     [0, 1, 2]
     >>> iterative_adjacency_dict_bfs({0: [1, 2], 1: [0, 2, 3], 2: [0, 1], 3: []}, 0)
@@ -220,6 +236,8 @@ def iterative_adjacency_matrix_bfs(graph: list[list[int]], start: int) -> list[i
     :param list[list[int]] graph: the adjacency matrix of a given graph
     :param int start: start vertex of search
     :returns list[int]: the bfs traversal of the graph
+    >>> iterative_adjacency_matrix_bfs([[0, 1, 0, 1], [1, 0, 1, 0], [0, 1, 0, 0], [1, 0, 0, 0]], 0)
+    [0, 1, 3, 2]
     >>> iterative_adjacency_matrix_bfs([[0, 1, 1], [1, 0, 1], [1, 1, 0]], 0)
     [0, 1, 2]
     >>> iterative_adjacency_matrix_bfs([[0, 1, 1, 0], [1, 0, 1, 1], [1, 1, 0, 0], [0, 0, 0, 0]], 0)
@@ -316,7 +334,84 @@ def adjacency_dict_radius(graph: dict[int, list[int]]) -> int:
     return min(bfs(v) for v in graph)
 
 
-# ======================= 5 =======================
+# ======================= 5,6 =======================
+def find_cycles_any(graph: list[list[int]] | dict[int, list[int]]) -> list[list[int]]:
+    """
+    Finds all cycles
+    >>> find_cycles_any(read_adjacency_dict('test2.dot'))
+    [[0, 1, 2], [1, 2, 3], [0, 1, 2, 3]
+    >>> find_cycles_any(read_incidence_matrix('test1.dot'))
+    [[0, 1, 2], [0, 3, 1, 2]]
+    >>> find_cycles_any(read_adjacency_matrix('input.dot'))
+    [[0, 1, 2]]
+    """
+    if isinstance(graph, dict): #adjacency_dict
+        n = max(graph.keys()) + 1
+
+        def get_neighbors(v):
+            return graph.get(v, [])
+
+        return find_cycles(get_neighbors, n)
+
+    if any(-1 in i for i in graph): #incidence_matrix
+        n = len(graph)
+        m = len(graph[0])
+
+        adj = {i: [] for i in range(n)}
+
+        for e in range(m):
+            a = b = None
+            for v in range(n):
+                if graph[v][e] == -1:
+                    a = v
+                elif graph[v][e] == 1:
+                    b = v
+            if a is not None and b is not None:
+                adj[a].append(b)
+
+        def get_neighbors(v):
+            return adj[v]
+
+        return find_cycles(get_neighbors, n)
+    else: #adjacency_matrix
+        n = len(graph)
+
+        def get_neighbors(v):
+            result = []
+            for u in range(n):
+                if graph[v][u] == 1:
+                    result.append(u)
+            return result
+
+        return find_cycles(get_neighbors, n)
+
+def find_cycles(get_neighbors, n: int) -> list[list[int]]:
+    cycles = []
+    stack = []
+    unique = []
+
+    def dfs(v):
+        stack.append(v)
+
+        for u in get_neighbors(v):
+            if u in stack:  # знайдено цикл
+                idx = stack.index(u)
+                cycle = stack[idx:].copy()
+                if len(cycle) >= 3:
+                    indx = cycle.index(min(cycle))
+                    default_cycle = cycle[indx:] + cycle[:indx]
+                    if set(default_cycle) not in unique:
+                        cycles.append(default_cycle)
+                        unique.append(set(default_cycle))
+            else:
+                dfs(u)  # не перевіряємо visited глобально
+
+        stack.pop()
+
+    for start in range(n):
+        dfs(start)
+
+    return [list(a) for a in cycles ]
 
 # ======================= 6 =======================
 def generate_random_graph(num_nodes: int, density: float = 0.25):
